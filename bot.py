@@ -12,14 +12,14 @@ import subprocess
 
 from files.products import products
 
-BITRIX24_WEBHOOK_URL = 'https://b24-xroznb.bitrix24.by/rest/1/vpvkffuqsioyqplf/crm.lead.add.json'
+BITRIX24_WEBHOOK_URL = 'my_webhook_url'
 
 
 # Устанавливаем уровень логирования
 logging.basicConfig(level=logging.INFO)
 
 # Токен вашего Telegram-бота
-BOT_TOKEN = '6689433021:AAEikkiTiXa18w57FUm6FOp2jd1_IO4byH4'
+BOT_TOKEN = 'my_bot_token'
 
 # Инициализируем бота и диспетчера
 bot = Bot(token=BOT_TOKEN)
@@ -39,7 +39,7 @@ async def run_parsing_script_periodically():
         await asyncio.sleep(4000)  # задаем ожидание парсинга в секундах
 
 # Настройка OpenAI
-llm = ChatOpenAI(model="gpt-4", temperature=0, api_key="sk-proj-S95MArdKEFLrkHb13OMwT3BlbkFJHHshKMPnBbPGgroLC7yr")
+llm = ChatOpenAI(model="gpt-4", temperature=0, api_key="my_api_key")
 
 # Хранение последнего упомянутого товара для каждого пользователя
 user_last_product = {}
