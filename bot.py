@@ -52,7 +52,7 @@ class GetProduct(BaseModel):
     country: str = Field('', description="which country of manufacture the user is referring to, e.g. строана производитель Чехия")
     manufacturer: str = Field('', description="which manufacturer the user has in mind, e.g. фирма Calze")
     price: str = Field('', description="what price the user has in mind. Write in the meaning of the number only, e.g. цена 50.")
-    greeting: str = Field('', description="there is a greeting in the user proposal, e.g. здравствуйте.")
+    greeting: str = Field('', description="recognize the user's sentence as a greeting, e.g. здравствуйте/привет/добрый день.")
     contacts: str = Field('', description="The user is interested in contacts, e.g. позвонить.")
     thank: str = Field('', description="The user would like to thank, e.g. спасибо.")
     advice: str = Field('', description="User asks for advice, e.g. что посоветуете.")
@@ -235,14 +235,14 @@ async def handle_message(message: Message):
             if fsl != "" and phone != "" and city != "" and name != "" and color != "" and size != "":
                 # Формируем данные для отправки в Битрикс24
                 lead_data = {
-                    'first_name': fsl.split()[1],
-                    'last_name': fsl.split()[0],
-                    'middle_name': fsl.split()[2] if len(fsl.split()) > 2 else '',
+                    'first_name': fsl.split()[1].capitalize(),
+                    'last_name': fsl.split()[0].capitalize(),
+                    'middle_name': fsl.split()[2].capitalize() if len(fsl.split()) > 2 else '',
                     'phone': phone,
-                    'city': city,
-                    'product_name': name,
-                    'product_color': color,
-                    'product_size': size
+                    'city': city.capitalize(),
+                    'product_name': name.capitalize(),
+                    'product_color': color.capitalize(),
+                    'product_size': size.capitalize()
                 }
 
                 # Отправляем данные в Битрикс24
