@@ -59,7 +59,7 @@ class GetProduct(BaseModel):
     interest: str = Field('', description="The user is interested in how the product can be purchased, e.g. способ купить.")
     place: str = Field('', description="User is ready to place an order for the product, e.g. оставлю заявку, куплю.")
     fsl: str = Field('', description="User wrote his/her Surname First Name Second Name, e.g. Иванов Сергей Андреевич.")
-    phone: str = Field('', description="The user wrote his phone number, e.g. +375257903263.")
+    phone: str = Field('', description="The user wrote his phone number, e.g. +375257903253.")
     city: str = Field('', description="The user wrote his city, e.g. Минск.")
     cancel: str = Field('', description="User wants to cancel data collection, e.g. Отмена/Не сейчас.")
 
