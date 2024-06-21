@@ -12,14 +12,14 @@ import subprocess
 
 from files.products import products
 
-BITRIX24_WEBHOOK_URL = 'my_webhook_url'
+BITRIX24_WEBHOOK_URL = 'https://b24-xroznb.bitrix24.by/rest/1/vpvkffuqsioyqplf/crm.lead.add.json'
 
 
 # Устанавливаем уровень логирования
 logging.basicConfig(level=logging.INFO)
 
 # Токен вашего Telegram-бота
-BOT_TOKEN = 'my_bot_token'
+BOT_TOKEN = '6689433021:AAEikkiTiXa18w57FUm6FOp2jd1_IO4byH4'
 
 # Инициализируем бота и диспетчера
 bot = Bot(token=BOT_TOKEN)
@@ -39,7 +39,7 @@ async def run_parsing_script_periodically():
         await asyncio.sleep(4000)  # задаем ожидание парсинга в секундах
 
 # Настройка OpenAI
-llm = ChatOpenAI(model="gpt-4", temperature=0, api_key="my_api_key")
+llm = ChatOpenAI(model="gpt-4", temperature=0, api_key="sk-proj-S95MArdKEFLrkHb13OMwT3BlbkFJHHshKMPnBbPGgroLC7yr")
 
 # Хранение последнего упомянутого товара для каждого пользователя
 user_last_product = {}
@@ -48,10 +48,10 @@ class GetProduct(BaseModel):
     name: str = Field('', description="which product the user has in mind, e.g. есть гольфы")
     color: str = Field('', description="what color the user has in mind, e.g. черный")
     size: str = Field('', description="what size the user has in mind, e.g. 4")
-    compression_class: str = Field('', description="what compression class the user has in mind, for example, e.g. компрессия 22 - 27 мм")
+    compression_class: str = Field('', description="If the user specifies compression 1, write in a value of I. If the user specifies compression 2, write in value II. In other cases any other values. e.g. компрессия 22 - 27 мм")
     country: str = Field('', description="which country of manufacture the user is referring to, e.g. строана производитель Чехия")
     manufacturer: str = Field('', description="which manufacturer the user has in mind, e.g. фирма Calze")
-    price: str = Field('', description="what price the user has in mind, e.g. цена 50р.")
+    price: str = Field('', description="what price the user has in mind. Write in the meaning of the number only, e.g. цена 50.")
     greeting: str = Field('', description="there is a greeting in the user proposal, e.g. здравствуйте.")
     contacts: str = Field('', description="The user is interested in contacts, e.g. позвонить.")
     thank: str = Field('', description="The user would like to thank, e.g. спасибо.")
@@ -92,6 +92,12 @@ def is_similar_country(keyword, product_country):
     matcher = SequenceMatcher(None, keyword.lower(), product_country.lower())
     return matcher.ratio() > 0.5
 
+def is_similar_compression(keyword, compression_class):
+    if keyword.lower() == compression_class.lower()[:2] or keyword.lower() == compression_class.lower()[3::]:
+        return True
+    matcher = SequenceMatcher(None, keyword.lower(), compression_class.lower())
+    return matcher.ratio() > 0.8
+
 def find_products_by_keywords(name=None, color=None, size=None, compression_class=None, country=None, manufacturer=None, price=None):
     matches = []
     for product in products:
@@ -106,7 +112,7 @@ def find_products_by_keywords(name=None, color=None, size=None, compression_clas
         if size and size != product["size"]:
             continue
 
-        if compression_class and compression_class.lower() != product["compression_class"].lower():
+        if compression_class and not is_similar_compression(compression_class, product["compression_class"]):
             continue
 
         if country and not is_similar_country(country, product["country"]):
@@ -118,10 +124,14 @@ def find_products_by_keywords(name=None, color=None, size=None, compression_clas
         if price:
             try:
                 price_float = float(price)  # Преобразуем строку price в число
-                if price_float >= float(product["price"]):
+                # Определяем диапазон цен
+                lower_bound = price_float - 3
+                upper_bound = price_float + 3
+                if not (lower_bound <= float(product["price"]) <= upper_bound):
                     continue
             except ValueError:
                 logging.warning(f"Invalid price format: {price}")
+                continue
 
         matches.append(product)
 
@@ -330,7 +340,7 @@ async def handle_message(message: Message):
 
             if greeting != "":
                 await send_long_message(message.chat.id,
-                                        "Здравствуйте! Мы рады видеть вас в компании Relaxsan.\nНапишите, какой товар вас интересует.")
+                                        "🙌Здравствуйте! Мы рады видеть вас в компании Relaxsan.\nНапишите, какой товар вас интересует.")
                 return
 
             if name != last_product['name']:
@@ -361,11 +371,11 @@ async def handle_message(message: Message):
             if matches:
                 response = f"Вот что мне удалось найти по Вашему запросу:\n\n" + "\n\n".join([format_product_info(product) for product in matches[:3]])
                 if len(matches) > 3:
-                    response += f"\n\nНайдено более 3 товаров. Пожалуйста, уточните ваш запрос, чтобы увидеть остальные."
+                    response += f"\n\nЯ нашел больше товаров, что Вы запросили. Пожалуйста, уточните детали, я покажу соответсвующие."
             else:
                 response = "Товары не найдены. Пожалуйста, уточните ваш запрос."
         else:
-            response = "Не удалось распознать запрос. Пожалуйста, укажите название, цвет и размер."
+            response = "Не удалось распознать запрос. Пожалуйста, напишите снова."
 
         await send_long_message(message.chat.id, response)
 
