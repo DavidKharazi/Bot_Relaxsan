@@ -2,3 +2,5 @@ pip install langchain-openai
 pip install aiogram
 pip install langchain
 pip install requests
+pip install aiohttp
+pip install fastapi

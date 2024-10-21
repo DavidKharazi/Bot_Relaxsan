@@ -1,4 +1,3 @@
-
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
@@ -9,17 +8,17 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 from difflib import SequenceMatcher
 import aiohttp
 import subprocess
-
 from files.products import products
 
-BITRIX24_WEBHOOK_URL = 'my_webhook_url'
+
+BITRIX24_WEBHOOK_URL = 'https://b24-gzxsfy.bitrix24.by/rest/1/eaq0l1mucp7xjm3o/crm.lead.add.json'
 
 
 # Устанавливаем уровень логирования
 logging.basicConfig(level=logging.INFO)
 
 # Токен вашего Telegram-бота
-BOT_TOKEN = 'my_bot_token'
+BOT_TOKEN = 'my_token_bot'
 
 # Инициализируем бота и диспетчера
 bot = Bot(token=BOT_TOKEN)
@@ -39,7 +38,7 @@ async def run_parsing_script_periodically():
         await asyncio.sleep(4000)  # задаем ожидание парсинга в секундах
 
 # Настройка OpenAI
-llm = ChatOpenAI(model="gpt-4", temperature=0, api_key="my_api_key")
+llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0, base_url='https://api.vsegpt.ru/v1', api_key='sk-or-vv-4fd1b5093c0c0441ac93ede59ee8ef136400a20e71e4ca65dec345ba468ce8ce')
 
 # Хранение последнего упомянутого товара для каждого пользователя
 user_last_product = {}
@@ -425,6 +424,7 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+
 
 
 
